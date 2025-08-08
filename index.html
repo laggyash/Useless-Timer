@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Useless Timer</title>
+    
+    <!-- Google Fonts for a more 'academic' and clean look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400&display=swap" rel="stylesheet">
+
+    <!-- KaTeX for rendering LaTeX Math -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" xintegrity="sha384-sCutvHOxlg92K+om9i39jKus3pfLG3p2K3kG2gS+eT+wNyV_LHOY-93+Kjbb9K38" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" xintegrity="sha384-hIoIeYJkL1MkBUntYWTMjHh21sH/7OFsdloRg9xKBhC_gL4eT1os/2elPu3KAI2O" crossorigin="anonymous"></script>
+    
+    <style>
+        /* Basic styling for the page */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212; /* Deep dark background */
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+            overflow: hidden;
+        }
+        /* New wrapper to hold both title and timer container */
+        #main-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        /* Title styling */
+        h1 {
+            font-family: 'Press Start 2P', cursive; /* Blocky font */
+            color: #ff4757; /* Red color */
+            margin: 0 0 2rem 0; /* Positioned above the container */
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
+        }
+        /* Main container for the timer equations */
+        #container {
+            display: flex; 
+            justify-content: center;
+            align-items: center; /* Vertically center the time display */
+            border: 1px solid #333;
+            padding: 2rem;
+            border-radius: 20px;
+            background-color: #1a1a1a;
+            box-shadow: 0 0 25px rgba(255, 71, 87, 0.1), 0 5px 15px rgba(0, 0, 0, 0.4);
+            width: 800px; /* Fixed width */
+            height: 250px; /* Fixed height for the equation area */
+        }
+        /* Flex container for the time parts */
+        #time-display {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            width: 100%;
+        }
+        /* Styling for each time part (Hour, Minute, Second) */
+        .time-part {
+            flex: 1; /* Each part takes equal space */
+            padding: 0 1rem;
+        }
+        /* Label for each time part */
+        .label {
+            font-size: 1rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        /* The div where the equation will be rendered */
+        .equation {
+            font-size: 1.8rem; /* Adjusted for horizontal layout */
+            min-height: 75px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem 0;
+            transition: opacity 0.4s ease-in-out; /* Smooth fade transition */
+        }
+    </style>
+</head>
+<body>
+
+<div id="main-wrapper">
+    <h1>Useless Timer</h1>
+    <div id="container">
+        <div id="time-display">
+            <div class="time-part">
+                <div class="label">Hours</div>
+                <div class="equation" id="hour-eq"></div>
+            </div>
+            <div class="time-part">
+                <div class="label">Minutes</div>
+                <div class="equation" id="minute-eq"></div>
+            </div>
+            <div class="time-part">
+                <div class="label">Seconds</div>
+                <div class="equation" id="second-eq"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Get the HTML elements where the equations will be displayed
+    const hourDiv = document.getElementById('hour-eq');
+    const minuteDiv = document.getElementById('minute-eq');
+    const secondDiv = document.getElementById('second-eq');
+    
+    // Store the last used equation string to avoid unnecessary re-renders and flickering
+    let lastHourEq = '', lastMinuteEq = '', lastSecondEq = '';
+
+    /**
+     * Generates a "useless" mathematical equation in LaTeX format for a given number.
+     * @param {number} value The number to represent (e.g., 19 for hours).
+     * @param {string} unit A character representing the time unit ('H', 'M', 'S') to select appropriate equation types.
+     * @returns {string} A LaTeX string representing the equation.
+     */
+    function getEquation(value, unit) {
+        if (value === 0) return "0";
+
+        let equationString = "";
+        const type = new Date().getSeconds() % 5;
+        const rand = Math.floor(Math.random() * 50) + 1;
+
+        switch(unit) {
+            case 'H':
+                switch(type) {
+                    case 0: equationString = `\\int_{0}^{${value}} 1 \\,dx`; break;
+                    case 1: equationString = `\\sum_{n=1}^{${value}} 1`; break;
+                    case 2: equationString = `\\frac{${value * 2}}{2}`; break;
+                    case 3: equationString = `\\lfloor ${value}.99 \\rfloor`; break;
+                    case 4: equationString = `${value}`; break;
+                }
+                break;
+            case 'M':
+                 switch(type) {
+                    case 0: equationString = `\\log_{2}(2^{${value}})`; break;
+                    case 1: equationString = `\\sqrt[3]{${value**3}}`; break;
+                    case 2: equationString = `${value} \\cdot (\\sin^2\\theta + \\cos^2\\theta)`; break;
+                    case 3: equationString = `\\binom{${value}}{1}`; break;
+                    case 4: equationString = `\\frac{d}{dx}(${value}x)`; break;
+                }
+                break;
+            case 'S':
+                switch(type) {
+                    case 0: equationString = `\\det \\begin{pmatrix} ${value} & ${rand} \\\\ 0 & 1 \\end{pmatrix}`; break;
+                    case 1: equationString = `\\sqrt{${value**2}}`; break;
+                    case 2: equationString = `${value - rand} + ${rand}`; break;
+                    case 3: equationString = `P(${value}, 1)`; break;
+                    case 4: equationString = `|${value}|`; break;
+                }
+                break;
+        }
+        return equationString;
+    }
+
+    /**
+     * Updates a single time element with a fade effect.
+     * @param {HTMLElement} element The div to update.
+     * @param {string} newEquation The new LaTeX equation string.
+     * @param {string} lastEquation The last rendered equation string.
+     * @returns {string} The new equation string, to be stored as the last equation.
+     */
+    function updateElement(element, newEquation, lastEquation) {
+        if (newEquation !== lastEquation) {
+            element.style.opacity = 0;
+            setTimeout(() => {
+                katex.render(newEquation, element, { throwOnError: false, displayMode: true });
+                element.style.opacity = 1;
+            }, 400); // Corresponds to the CSS transition duration
+        }
+        return newEquation;
+    }
+
+    /**
+     * The main timer function that updates the display every second.
+     */
+    function updateTimer() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+
+        // Generate new equations
+        const newHourEq = getEquation(hours, 'H');
+        const newMinuteEq = getEquation(minutes, 'M');
+        const newSecondEq = getEquation(seconds, 'S');
+
+        // Update elements only if the equation has changed, with a fade effect
+        lastHourEq = updateElement(hourDiv, newHourEq, lastHourEq);
+        lastMinuteEq = updateElement(minuteDiv, newMinuteEq, lastMinuteEq);
+        lastSecondEq = updateElement(secondDiv, newSecondEq, lastSecondEq);
+    }
+
+    // --- Main Execution ---
+    setInterval(updateTimer, 1000);
+    updateTimer(); // Initial call
+</script>
+
+</body>
+</html>
