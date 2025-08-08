@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Useless Timer</title>
+    <title>The Useless Countdown</title>
     
-    <!-- Google Fonts for a more 'academic' and clean look -->
+    <!-- Google Fonts for a blocky, retro look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400&display=swap" rel="stylesheet">
@@ -28,18 +28,20 @@
             text-align: center;
             overflow: hidden;
         }
-        /* New wrapper to hold both title and timer container */
+        /* Wrapper to hold both title and timer container */
         #main-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
         }
         /* Title styling */
         h1 {
             font-family: 'Press Start 2P', cursive; /* Blocky font */
             color: #ff4757; /* Red color */
-            margin: 0 0 2rem 0; /* Positioned above the container */
-            font-size: 2rem;
+            margin: 0 0 5vh 0; /* Use viewport height for margin */
+            /* Responsive font size using clamp(min, preferred, max) */
+            font-size: clamp(2rem, 5vw, 5rem); 
             text-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
         }
         /* Main container for the timer equations */
@@ -48,12 +50,13 @@
             justify-content: center;
             align-items: center; /* Vertically center the time display */
             border: 1px solid #333;
-            padding: 2rem;
+            padding: 5vh 2vw; /* Use viewport units for padding */
             border-radius: 20px;
             background-color: #1a1a1a;
             box-shadow: 0 0 25px rgba(255, 71, 87, 0.1), 0 5px 15px rgba(0, 0, 0, 0.4);
-            width: 800px; /* Fixed width */
-            height: 250px; /* Fixed height for the equation area */
+            width: 90vw; /* Use viewport width */
+            max-width: 1400px; /* Set a max-width for very large screens */
+            min-height: 30vh; /* Ensure a minimum height */
         }
         /* Flex container for the time parts */
         #time-display {
@@ -65,24 +68,24 @@
         /* Styling for each time part (Hour, Minute, Second) */
         .time-part {
             flex: 1; /* Each part takes equal space */
-            padding: 0 1rem;
+            padding: 0 1vw;
         }
         /* Label for each time part */
         .label {
-            font-size: 1rem;
-            color: #999;
             text-transform: uppercase;
             letter-spacing: 2px;
+            color: #999;
+            font-size: clamp(1rem, 2.5vw, 2rem);
         }
         /* The div where the equation will be rendered */
         .equation {
-            font-size: 1.8rem; /* Adjusted for horizontal layout */
-            min-height: 75px; 
+            min-height: 15vh; 
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 1rem 0;
             transition: opacity 0.4s ease-in-out; /* Smooth fade transition */
+            font-size: clamp(1.8rem, 4vw, 4.5rem);
         }
     </style>
 </head>
@@ -109,21 +112,27 @@
 </div>
 
 <script>
+    // --- Configuration ---
+    // Set the target date for the countdown.
+    // Format: YYYY-MM-DDTHH:MM:SS (24-hour format)
+    const targetDate = new Date('2025-08-09T06:00:00');
+
     // Get the HTML elements where the equations will be displayed
     const hourDiv = document.getElementById('hour-eq');
     const minuteDiv = document.getElementById('minute-eq');
     const secondDiv = document.getElementById('second-eq');
     
-    // Store the last used equation string to avoid unnecessary re-renders and flickering
+    // Store the last used equation string to avoid unnecessary re-renders
     let lastHourEq = '', lastMinuteEq = '', lastSecondEq = '';
 
     /**
      * Generates a "useless" mathematical equation in LaTeX format for a given number.
      * @param {number} value The number to represent (e.g., 19 for hours).
-     * @param {string} unit A character representing the time unit ('H', 'M', 'S') to select appropriate equation types.
+     * @param {string} unit A character representing the time unit ('H', 'M', 'S').
      * @returns {string} A LaTeX string representing the equation.
      */
     function getEquation(value, unit) {
+        if (value < 0) value = 0;
         if (value === 0) return "0";
 
         let equationString = "";
@@ -131,31 +140,31 @@
         const rand = Math.floor(Math.random() * 50) + 1;
 
         switch(unit) {
-            case 'H':
+            case 'H': // Equations for Hours
                 switch(type) {
                     case 0: equationString = `\\int_{0}^{${value}} 1 \\,dx`; break;
                     case 1: equationString = `\\sum_{n=1}^{${value}} 1`; break;
-                    case 2: equationString = `\\frac{${value * 2}}{2}`; break;
-                    case 3: equationString = `\\lfloor ${value}.99 \\rfloor`; break;
-                    case 4: equationString = `${value}`; break;
+                    case 2: equationString = `\\lfloor ${value}.99 \\rfloor`; break;
+                    case 3: equationString = `${value}`; break;
+                    case 4: equationString = `\\frac{d}{dx}(${value}x)`; break;
                 }
                 break;
-            case 'M':
+            case 'M': // Equations for Minutes
                  switch(type) {
                     case 0: equationString = `\\log_{2}(2^{${value}})`; break;
                     case 1: equationString = `\\sqrt[3]{${value**3}}`; break;
                     case 2: equationString = `${value} \\cdot (\\sin^2\\theta + \\cos^2\\theta)`; break;
                     case 3: equationString = `\\binom{${value}}{1}`; break;
-                    case 4: equationString = `\\frac{d}{dx}(${value}x)`; break;
+                    case 4: equationString = `|${value}|`; break;
                 }
                 break;
-            case 'S':
+            case 'S': // Equations for Seconds
                 switch(type) {
                     case 0: equationString = `\\det \\begin{pmatrix} ${value} & ${rand} \\\\ 0 & 1 \\end{pmatrix}`; break;
-                    case 1: equationString = `\\sqrt{${value**2}}`; break;
+                    case 1: equationString = `P(${value}, 1)`; break;
                     case 2: equationString = `${value - rand} + ${rand}`; break;
-                    case 3: equationString = `P(${value}, 1)`; break;
-                    case 4: equationString = `|${value}|`; break;
+                    case 3: equationString = `\\lim_{x \\to \\infty} (${value} + \\frac{1}{x})`; break;
+                    case 4: equationString = `\\sqrt{${value**2}}`; break;
                 }
                 break;
         }
@@ -163,7 +172,7 @@
     }
 
     /**
-     * Updates a single time element with a fade effect.
+     * Updates a single time element with a fade effect if the equation has changed.
      * @param {HTMLElement} element The div to update.
      * @param {string} newEquation The new LaTeX equation string.
      * @param {string} lastEquation The last rendered equation string.
@@ -185,16 +194,19 @@
      */
     function updateTimer() {
         const now = new Date();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        const seconds = now.getSeconds();
+        const timeRemaining = targetDate - now;
+
+        // Calculate total hours, and remaining minutes and seconds
+        const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
 
         // Generate new equations
         const newHourEq = getEquation(hours, 'H');
         const newMinuteEq = getEquation(minutes, 'M');
         const newSecondEq = getEquation(seconds, 'S');
 
-        // Update elements only if the equation has changed, with a fade effect
+        // Update elements only if the equation has changed
         lastHourEq = updateElement(hourDiv, newHourEq, lastHourEq);
         lastMinuteEq = updateElement(minuteDiv, newMinuteEq, lastMinuteEq);
         lastSecondEq = updateElement(secondDiv, newSecondEq, lastSecondEq);
@@ -202,7 +214,7 @@
 
     // --- Main Execution ---
     setInterval(updateTimer, 1000);
-    updateTimer(); // Initial call
+    updateTimer(); // Initial call to display time immediately
 </script>
 
 </body>
